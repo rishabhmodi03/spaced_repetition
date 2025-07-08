@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/topicListFragment">
+
+    <fragment
+        android:id="@+id/topicListFragment"
+        android:name="com.example.spacedrepetition.ui.TopicListFragment"
+        android:label="Topics"
+        tools:layout="@layout/fragment_topic_list">
+        <action
+            android:id="@+id/action_topicListFragment_to_addEditTopicFragment"
+            app:destination="@id/addEditTopicFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+        <action
+            android:id="@+id/action_topicListFragment_to_calendarFragment"
+            app:destination="@id/calendarFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+        <action
+            android:id="@+id/action_topicListFragment_to_manageRevisionSettingsFragment"
+            app:destination="@id/nav_settings" <!-- Updated destination -->
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/addEditTopicFragment"
+        android:name="com.example.spacedrepetition.ui.AddEditTopicFragment"
+        android:label="{title}" <!-- Dynamic title -->
+        tools:layout="@layout/fragment_add_edit_topic">
+        <argument
+            android:name="topicId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="title"
+            app:argType="string"
+            android:defaultValue="Add Topic" />
+        <action
+            android:id="@+id/action_addEditTopicFragment_to_manageRevisionSettingsFragment"
+            app:destination="@id/nav_settings" <!-- Updated destination -->
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/calendarFragment"
+        android:name="com.example.spacedrepetition.ui.CalendarFragment"
+        android:label="Calendar"
+        tools:layout="@layout/fragment_calendar" />
+
+    <fragment
+        android:id="@+id/nav_settings" <!-- Changed ID to match menu item -->
+        android:name="com.example.spacedrepetition.ui.settings.ManageRevisionSettingsFragment"
+        android:label="Manage Strategies"
+        tools:layout="@layout/fragment_manage_revision_settings" />
+
+</navigation>

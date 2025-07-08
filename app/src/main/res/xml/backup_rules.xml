@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- TODO: Remove schemaPath if you don't support ADB backup.
+    <include domain="database" path="."/>
+    -->
+</full-backup-content>
