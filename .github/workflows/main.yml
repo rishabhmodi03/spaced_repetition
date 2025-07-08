@@ -3,8 +3,7 @@ name: Android Release Build and Upload
 
 # Trigger the workflow when a new release is published
 on:
-  release:
-    types: [published] # This ensures the workflow runs only when a release is published
+  workflow_dispatch
 
 # Define the jobs to be executed
 jobs:
