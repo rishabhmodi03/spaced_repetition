@@ -3,12 +3,9 @@ name: Android Release Build and Upload
 
 # Trigger the workflow when a new release is published
 on:
-  push:
-    branches:
-      - main # Or your default branch
-      - develop
-      - feat/spaced-repetition-core
-      - spaced-repetition-core
+  release:
+    types: [published] # This ensures the workflow runs only when a release is published
+
 # Define the jobs to be executed
 jobs:
   build_and_upload:
