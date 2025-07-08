@@ -1,43 +1,70 @@
-name: Android CI Build
+# Name of the workflow as it appears in the GitHub Actions UI
+name: Android Release Build and Upload
 
+# Trigger the workflow when a new release is published
 on:
   workflow_dispatch
-
+# Define the jobs to be executed
 jobs:
-  build:
+  build_and_upload:
+    # Run on the latest Ubuntu runner
     runs-on: ubuntu-latest
 
+    # Steps involved in the job
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the repository code
+      # This action checks out your repository under $GITHUB_WORKSPACE,
+      # so your workflow can access it.
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin' # formerly 'adopt'
-        java-version: '11' 
-        cache: 'gradle'
+      # Step 2: Set up Java Development Kit (JDK)
+      # Android projects require a JDK to build.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17' # Specify the Java version required for your project
+          distribution: 'temurin' # Use Temurin distribution (recommended)
+          cache: 'gradle' # Cache Gradle dependencies to speed up builds
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
+      # Step 3: Grant execute permission to the Gradle wrapper
+      # The gradlew script needs execute permissions to run.
+      - name: Grant execute permission to gradlew
+        run: chmod +x gradlew
 
-    - name: Build with Gradle (Debug APK)
-      run: ./gradlew assembleDebug
+      # Step 4: Build the release APK
+      # This command runs the 'assembleRelease' Gradle task, which builds the release APK.
+      # The output APK will typically be found in app/build/outputs/apk/release/
+      - name: Build release APK
+        run: ./gradlew assembleRelease
 
-    - name: Run Unit Tests
-      run: ./gradlew testDebugUnitTest
+      # Step 5: Find the generated APK file
+      # This step finds the APK file, which might have a dynamic name like app-release.apk or app-release-unsigned.apk.
+      # It sets the path to the APK as an output variable for subsequent steps.
+      - name: Find APK file
+        id: find_apk
+        run: |
+          # The find command locates the .apk file in the release directory.
+          # We use head -n 1 to pick the first one if multiple are found (e.g., debug and release, though we only build release here).
+          # The path is then trimmed and set as a GitHub Actions output.
+          APK_PATH=$(find app/build/outputs/apk/release/ -name "*.apk" | head -n 1)
+          echo "Found APK at: $APK_PATH"
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT # Set the output variable
 
-    - name: Upload Debug APK Artifact
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Example: Only upload for pushes to main
-      uses: actions/upload-artifact@v3
-      with:
-        name: app-debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
-
-    # Optional: Upload Test Reports
-    - name: Upload Test Reports
-      if: always() # Always run this step to upload reports even if tests fail
-      uses: actions/upload-artifact@v3
-      with:
-        name: unit-test-reports
-        path: app/build/reports/tests/testDebugUnitTest/
+      # Step 6: Upload the APK to the GitHub Release
+      # This action uploads assets to your GitHub Release.
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v1
+        if: success() # Only run this step if the previous steps (build, find APK) were successful
+        with:
+          # The `files` parameter specifies which files to upload.
+          # We use the `apk_path` output from the previous step.
+          files: ${{ steps.find_apk.outputs.apk_path }}
+          # The `tag_name` is automatically available from the `release` event.
+          # The `name` of the release is also automatically available.
+          # The `body` of the release can be customized or taken from the release event.
+          # You can also specify `draft: true` or `prerelease: true` if needed.
+        env:
+          # GITHUB_TOKEN is a special token provided by GitHub Actions for authentication.
+          # It has permissions to create and manage releases.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
