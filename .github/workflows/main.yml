@@ -1,14 +1,7 @@
 name: Android CI Build
 
 on:
-  push:
-    branches:
-      - main # Or your default branch
-      - develop
-  pull_request:
-    branches:
-      - main
-      - develop
+  workflow_dispatch
 
 jobs:
   build:
